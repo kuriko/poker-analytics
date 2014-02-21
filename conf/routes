@@ -1,0 +1,18 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET        /                                                           controllers.Application.index
+GET        /poker/player/:name                                         controllers.Application.getPlayer(name: String)
+GET        /poker/game                                                 controllers.Application.createGame
+GET        /poker/game/:gameId                                         controllers.Application.getGame(gameId: Long)
+GET        /poker/game/:gameId/entry/:name                             controllers.Application.entry(gameId: Long, name: String)
+GET        /poker/game/:gameId/players                                 controllers.Application.getGamePlayers(gameId: Long)
+GET        /poker/game/:gameId/start                                   controllers.Application.startGame(gameId: Long)
+GET        /poker/game/:gameId/action/:name/:types/:chip               controllers.Application.action(gameId: Long, name: String, types: String, chip: Long)
+GET        /poker/game/:gameId/history                                 controllers.Application.getHistory(gameId: Long)
+
+
+# Map static resources from the /public folder to the /assets URL path
+GET        /assets/*file                                               controllers.Assets.at(path="/public", file)
