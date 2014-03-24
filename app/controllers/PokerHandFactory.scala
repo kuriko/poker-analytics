@@ -10,7 +10,7 @@ object PokerHandFactory {
    */
   def createPokerHand(cards: Seq[Card]): PokerHand ={
     require(cards.size.equals(7))
-    val hands: List[PokerHand] = Nil
+    val hands: ListBuffer[PokerHand] = new ListBuffer[PokerHand]()
 
     //5連続以上 -> ストレート
     //同スートが５枚以上 -> フラッシュ
@@ -21,10 +21,10 @@ object PokerHandFactory {
     val sh = if(h.isDefined) getStraightCandidate(h.get) else None
     val rsh = if(sh.isDefined && (sh.get.last.rank == Rank._T)) sh else None
 
-    if(rsh.isDefined)               new RoyalStraightFlush(rsh.get) +: hands
-    if(rsh.isEmpty && sh.isDefined) new StraightFlush(desc5(sh.get)) +: hands
-    if(sh.isEmpty && h.isDefined)   new Flush(desc5(h.get)) +: hands
-    if(h.isEmpty && s.isDefined)    new Straight(desc5(s.get)) +: hands
+    if(rsh.isDefined)               hands += new RoyalStraightFlush(rsh.get)
+    if(rsh.isEmpty && sh.isDefined) hands += new StraightFlush(desc5(sh.get))
+    if(sh.isEmpty && h.isDefined)   hands += new Flush(desc5(h.get))
+    if(h.isEmpty && s.isDefined)    hands += new Straight(desc5(s.get))
 
     //４枚組がある -> クアッズ
     //３枚組がある且つ２枚組以上がある -> フルハウス
@@ -33,12 +33,12 @@ object PokerHandFactory {
     //２枚組が２つない -> ワンペア判定
     //２枚組がない -> ハイカード
     getRankHash(cards) match {
-      case x1::x2::_ if x1.size >= 4 =>                         new FourOfAKind(List.concat(x1,x2.take(1))) +: hands
-      case x1::x2::_ if x1.size == 3 && x2.size >= 2 =>         new FullHouse(List.concat(x1,x2.take(2))) +: hands
-      case x1::x2::x3::_ if x1.size == 3 && x2.size == 1 =>     new ThreeOfAKind(List.concat(x1,x2,x3)) +: hands
-      case x1::x2::x3::_ if x1.size == 2 && x2.size == 2 =>     new TwoPair(List.concat(x1,x2,x3)) +: hands
-      case x1::x2::x3::x4::_ if x1.size == 2 && x2.size == 1 => new OnePair(List.concat(x1,x2,x3,x4)) +: hands
-      case x1::_ if x1.size == 1 =>                             new HighCard(desc5(cards)) +: hands
+      case x1::x2::_ if x1.size >= 4 =>                         hands += new FourOfAKind(List.concat(x1,x2.take(1)))
+      case x1::x2::_ if x1.size == 3 && x2.size >= 2 =>         hands += new FullHouse(List.concat(x1,x2.take(2)))
+      case x1::x2::x3::_ if x1.size == 3 && x2.size == 1 =>     hands += new ThreeOfAKind(List.concat(x1,x2,x3))
+      case x1::x2::x3::_ if x1.size == 2 && x2.size == 2 =>     hands += new TwoPair(List.concat(x1,x2,x3))
+      case x1::x2::x3::x4::_ if x1.size == 2 && x2.size == 1 => hands += new OnePair(List.concat(x1,x2,x3,x4))
+      case x1::_ if x1.size == 1 =>                             hands += new HighCard(desc5(cards))
       case _ =>
     }
 

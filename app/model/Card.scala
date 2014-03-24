@@ -18,19 +18,21 @@ object Card {
   def rankDescSort(cards: Seq[Card]): Seq[Card] = cards.sortBy(_.rank.code).reverse
 
   def createDeck: Seq[Card] = Random.shuffle(for(i <- 0 to Suit.values.size * Rank.size - 1) yield new Card(Suit(i / Rank.size),Rank((i % Rank.size) + 2)))
+  def apply(code: String) = new Card(Suit(code.charAt(1).toString),Rank(code.charAt(0).toString))
 }
 
 /**
  * スート
  */
-sealed abstract class Suit(val code: String, val mark: String)
+sealed abstract class Suit(val code: Int, val name: String, val mark: String)
 object Suit {
-  case object Spade   extends Suit("s", "♠")
-  case object Hart    extends Suit("h", "♥")
-  case object Diamond extends Suit("d", "♦")
-  case object Club    extends Suit("c", "♣")
+  case object Spade   extends Suit(0, "s", "♠")
+  case object Hart    extends Suit(1, "h", "♥")
+  case object Diamond extends Suit(2, "d", "♦")
+  case object Club    extends Suit(3, "c", "♣")
   val values = Seq(Spade, Hart, Diamond, Club)
   def apply(code: Int) = values.find(_.code == code).get
+  def apply(name: String) = values.find(_.name == name).get
 }
 
 /**
@@ -57,4 +59,5 @@ object Rank {
   val values = Seq(_1, _2, _3, _4, _5, _6, _7, _8, _9, _T, _J, _Q, _K, _A)
   val size = values.size - 1 //ダミーの１は除外
   def apply(code: Int) = values.find(_.code == code).get
+  def apply(name: String) = values.find(_.name == name).get
 }

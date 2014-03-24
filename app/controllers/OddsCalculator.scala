@@ -8,7 +8,10 @@ object OddsCalculator {
   /**
    * 勝率
    */
-  case class Odds(win: Double, tie: Double)
+  case class Odds(win: Double, tie: Double){
+    val win_par = (Math.round(win * 10000) / 100.0).toString + "%"
+    val tie_par = (Math.round(tie * 10000) / 100.0).toString + "%"
+  }
 
   /**
    * 勝率取得
@@ -23,7 +26,7 @@ object OddsCalculator {
       case 5 => calcOdds(players, Seq(board)) //単純判定
       case 4 => calcOdds(players, deck.map( card => Seq(card) ++ board )) //総当たり
       case 3 => calcOdds(players, deck.combinations(2).map( cards => cards ++ board ).toSeq)  //組み合わせ総当たり
-      case _ => calcOdds(players, (1 to 10000).map(i => Random.shuffle(deck).take(5))) //モンテカルロ
+      case _ => calcOdds(players, (1 to 1000).map(i => Random.shuffle(deck).take(5))) //モンテカルロ
     }
   }
 
@@ -31,19 +34,24 @@ object OddsCalculator {
    * 勝率計算
    */
   private def calcOdds(players: Seq[Player], boards: Seq[Seq[Card]]): Map[Player, Odds] = {
-    val (folder,survivor) = players.partition(_.isFolded)
-    val folderOdds = folder.map(me => me -> Odds(0, 0))
-    //生存者のみでboardsの数だけ勝率判定
-    val survivorOdds = survivor.map{ me =>
-      val results: Map[String, Int] = Map("win" -> 0, "tie" -> 0, "lose" -> 0)
-      boards.foreach{ board =>
-        Judge.getWinner(survivor,board) match {
-          case winners if !winners.keysIterator.contains(me) => results("lose") += 1
-          case winners if winners.size > 1 => results("win") += 1 ; results("tie") += 1
-          case _ => results("win") += 1
+    val (actives, inactives) = players.partition(_.isActive)
+    val folderOdds = inactives.map(me => me -> Odds(0.0, 0.0))
+    //スコア判定
+    boards.foreach{ board =>
+      val winners = Judge.getWinner(actives,board)
+      actives.map{ me =>
+        if(winners.keySet.contains(me)) {
+          me.score_win += 1
+          if(winners.size > 1) {
+            me.score_tie += 1
+          }
+        } else {
+          me.score_lose += 1
         }
       }
-      me -> Odds(results("win") / boards.size, results("tie") / boards.size)
+    }
+    val survivorOdds = actives.map{ me =>
+      me -> Odds(me.score_win.toDouble / boards.size, me.score_tie.toDouble / boards.size)
     }
     (folderOdds ++ survivorOdds).toMap
   }
