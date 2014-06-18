@@ -8,8 +8,10 @@ import scala.util.Random
  * @param suit スーツ
  * @param rank ランク
  */
-class Card (val suit: Suit, val rank: Rank){
+case class Card (val suit: Suit, val rank: Rank){
   def toJsValue = toJson(suit.mark + rank.name)
+
+  override def toString = "Card(" + rank + suit.mark + ")"
 }
 object Card {
   /**
