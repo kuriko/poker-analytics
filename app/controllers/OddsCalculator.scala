@@ -41,9 +41,10 @@ object OddsCalculator {
       val winners = Judge.getWinner(actives,board)
       actives.map{ me =>
         if(winners.keySet.contains(me)) {
-          me.score_win += 1
           if(winners.size > 1) {
             me.score_tie += 1
+          } else {
+            me.score_win += 1
           }
         } else {
           me.score_lose += 1
